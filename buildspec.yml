@@ -3,16 +3,21 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      java: corretto17
-      maven: 3.8
+      java: corretto8
+  pre_build:
     commands:
-      - echo Installing dependencies...
-      - mvn install -DskipTests
+      - echo Initializing environment
+      - export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain nextwork --domain-owner 491085412124 --region eu-north-1 --query authorizationToken --output text`
+
   build:
     commands:
       - echo Build started on `date`
-      - mvn package
-
+      - mvn -s settings.xml compile
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - mvn -s settings.xml package
 artifacts:
   files:
-    - target/*.jar
+    - target/nextwork-web-project.war
+  discard-paths: no
